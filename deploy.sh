@@ -21,7 +21,7 @@ echo ">> Deploying (takes ~5 min)"
 gcloud run deploy quiz --source . --region "$REGION" -q \
   --allow-unauthenticated --session-affinity \
   --min-instances 0 --max-instances 1 --timeout 3600 --memory 512Mi \
-  --set-env-vars "GOOGLE_CLOUD_PROJECT=$P,GOOGLE_CLOUD_LOCATION=$REGION"
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=$P,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-3.5-flash"
 
 URL=$(gcloud run services describe quiz --region "$REGION" --format='value(status.url)')
 echo ""

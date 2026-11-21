@@ -15,7 +15,7 @@ function getClient() {
     client = new GoogleGenAI({
       vertexai: true,
       project: process.env.GOOGLE_CLOUD_PROJECT,
-      location: process.env.GOOGLE_CLOUD_LOCATION || 'us-central1',
+      location: process.env.GOOGLE_CLOUD_LOCATION || 'global',
     });
   }
   return client;
@@ -50,7 +50,7 @@ Make exactly ${n} questions. Each question has exactly 4 short answers (max 60 c
 Questions should be short (max 120 characters), clear and factually accurate.`;
 
   const res = await getClient().models.generateContent({
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    model: process.env.GEMINI_MODEL || 'gemini-3.5-flash',
     contents: prompt,
     config: { responseMimeType: 'application/json', responseSchema: schema, temperature: 0.8 },
   });
