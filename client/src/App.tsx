@@ -5,12 +5,14 @@ import { Button, Logo } from './components/ui';
 import CreateQuiz from './host/CreateQuiz';
 import HostGame from './host/HostGame';
 import PlayerGame from './player/PlayerGame';
+import Admin from './admin/Admin';
 
 export default function App() {
   const view = useStore((s) => s.view);
   if (view === 'create') return <CreateQuiz />;
   if (view === 'host') return <HostGame />;
   if (view === 'player') return <PlayerGame />;
+  if (view === 'admin') return <Admin />;
   return <Home />;
 }
 
@@ -80,9 +82,14 @@ function Home() {
         </button>
         {error && <p className="text-k-red text-sm text-center font-semibold">{error}</p>}
       </form>
-      <Button variant="ghost" onClick={() => setView('create')}>
-        Би хөтлөгч — Quiz үүсгэх →
-      </Button>
+      <div className="flex flex-col items-center gap-2">
+        <Button variant="ghost" onClick={() => setView('create')}>
+          Би хөтлөгч — Quiz үүсгэх →
+        </Button>
+        <button className="text-white/60 hover:text-white text-sm cursor-pointer" onClick={() => setView('admin')}>
+          📊 Багшийн самбар
+        </button>
+      </div>
     </div>
   );
 }

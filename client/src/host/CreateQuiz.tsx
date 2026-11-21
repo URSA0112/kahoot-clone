@@ -24,6 +24,28 @@ export default function CreateQuiz() {
   const [lang, setLang] = useState('Mongolian');
   const [busy, setBusy] = useState<'ai' | 'start' | null>(null);
   const [error, setError] = useState('');
+  const [timing, setTiming] = useState({ resultsS: 8, leaderboardS: 5, countdownS: 3 });
+
+  const timingMs = () => ({
+    resultsMs: timing.resultsS * 1000,
+    leaderboardMs: timing.leaderboardS * 1000,
+    countdownMs: timing.countdownS * 1000,
+  });
+
+  async function launch(payload: object) {
+    setError('');
+    setBusy('start');
+    try {
+      const { pin, hostKey } = await emitAck<{ pin: string; hostKey: string }>('host:create', { ...payload, timing: timingMs() });
+      sessionStorage.setItem('hostPin', pin);
+      sessionStorage.setItem('hostKey', hostKey);
+      setView('host');
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  }
 
   const updateQ = (i: number, patch: Partial<Question>) =>
     setQuiz((q) => ({ ...q, questions: q.questions.map((x, j) => (j === i ? { ...x, ...patch } : x)) }));
@@ -51,18 +73,7 @@ export default function CreateQuiz() {
   async function start() {
     const bad = quiz.questions.findIndex((q) => !q.text.trim() || q.answers.some((a) => !a.trim()));
     if (bad >= 0) return setError(`${bad + 1}-р асуулт дутуу байна`);
-    setError('');
-    setBusy('start');
-    try {
-      const { pin, hostKey } = await emitAck<{ pin: string; hostKey: string }>('host:create', quiz);
-      sessionStorage.setItem('hostPin', pin);
-      sessionStorage.setItem('hostKey', hostKey);
-      setView('host');
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(null);
-    }
+    launch({ quiz });
   }
 
   return (
@@ -74,6 +85,45 @@ export default function CreateQuiz() {
         <h2 className="font-black text-2xl">Quiz үүсгэх</h2>
         <span />
       </div>
+
+      {/* Curriculum preset */}
+      <section className="bg-white text-gray-900 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-xl">
+        <div className="flex-1">
+          <p className="text-xs font-bold uppercase tracking-wider text-k-purple">PIAcademy · сургалтын хөтөлбөр</p>
+          <h3 className="font-black text-xl">Програмчлалын үндэс + Вэб хөгжүүлэлт</h3>
+          <p className="text-sm text-gray-600">
+            20 асуулт (C 10, Web 10) · код уншиж бодох асуултууд · тайлбар, гол ойлголт · багшийн тайлан
+          </p>
+        </div>
+        <Button className="!bg-k-purple !text-white !shadow-[0_4px_0_#2d0b63]" disabled={busy !== null} onClick={() => launch({ preset: 'piacademy' })}>
+          Энэ quiz-ээр эхлэх ▶
+        </Button>
+      </section>
+
+      {/* Auto-flow timing */}
+      <section className="bg-white/10 rounded-xl p-4 border border-white/20">
+        <h3 className="font-bold mb-2">⏱ Автомат урсгалын хугацаа (секунд)</h3>
+        <div className="grid grid-cols-3 gap-3 text-sm">
+          {(
+            [
+              ['resultsS', 'Зөв хариулт + тайлбар', [5, 8, 10, 15, 20]],
+              ['leaderboardS', 'Тэргүүлэгчид', [3, 5, 8, 10]],
+              ['countdownS', '3-2-1 тоолол', [3, 5]],
+            ] as const
+          ).map(([k, label, opts]) => (
+            <label key={k} className="flex flex-col gap-1">
+              <span className="text-white/80">{label}</span>
+              <select className="rounded-md p-2 text-gray-900 font-semibold" value={timing[k]} onChange={(e) => setTiming({ ...timing, [k]: +e.target.value })}>
+                {opts.map((n) => (
+                  <option key={n} value={n}>{n}с</option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <p className="text-center text-white/60 text-sm">— эсвэл өөрийн quiz —</p>
 
       {/* AI generator */}
       <section className="bg-white/10 rounded-xl p-4 flex flex-col gap-3 border border-white/20">
