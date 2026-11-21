@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", system-ui, sans-serif;
+  --color-k-red: #e21b3c;
+  --color-k-blue: #1368ce;
+  --color-k-yellow: #d89e00;
+  --color-k-green: #26890c;
+  --color-k-purple: #46178f;
+}
+
+body {
+  @apply bg-k-purple text-white font-sans min-h-dvh;
+  background-image: radial-gradient(circle at 20% 0%, #6a2bc4 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, #2d0b63 0%, transparent 60%);
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop { animation: pop 0.35s ease-out both; }
